@@ -1,9 +1,9 @@
 {
-	"version": "0.1.6",
-	"build": 7,
-	"url": "https://dl.agentbol.com/Bol-0.1.6.dmg",
-	"sha256": "01e8d35873739f23b13e937e99c476a34a90b9e75e595d3b1fad41fb3a3a5e9f",
+	"version": "0.1.7",
+	"build": 8,
+	"url": "https://dl.agentbol.com/Bol-0.1.7.dmg",
+	"sha256": "83cdf6d65b583cfc6ab92fd931cbfa9c1e707d89a4d7f4858ca33d6018b1303c",
 	"minimumSystemVersion": "13.0",
-	"releasedAt": "2026-11-25T14:06:03.098Z",
-	"notes": "Bol now updates itself: it downloads new versions and installs them when it's idle."
+	"releasedAt": "2026-11-25T14:24:02.616Z",
+	"notes": "A tidier menu bar menu."
 }
