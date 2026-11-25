@@ -1,9 +1,9 @@
 {
-	"version": "0.1.5",
-	"build": 6,
-	"url": "https://dl.agentbol.com/Bol-0.1.5.dmg",
-	"sha256": "f761ead77dff2a1f469c339282ff35bb1e0aeeea99fc3bade42f40510b9ea5e7",
+	"version": "0.1.6",
+	"build": 7,
+	"url": "https://dl.agentbol.com/Bol-0.1.6.dmg",
+	"sha256": "01e8d35873739f23b13e937e99c476a34a90b9e75e595d3b1fad41fb3a3a5e9f",
 	"minimumSystemVersion": "13.0",
-	"releasedAt": "2026-11-25T13:52:49.669Z",
-	"notes": "Setup now ends with a short summary of how Bol works and the Terms to agree to."
+	"releasedAt": "2026-11-25T14:06:03.098Z",
+	"notes": "Bol now updates itself: it downloads new versions and installs them when it's idle."
 }
