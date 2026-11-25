@@ -30,7 +30,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 		case started
 	}
 	private var isMenuOpen = false
-	private let updates = UpdateChecker()
+	private let updates = UpdateChecker.shared
 
 	func applicationDidFinishLaunching(_ notification: Notification) {
 		let config = Config.load()
@@ -88,6 +88,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
 		controller.onStateChange = { [weak self] in self?.controllerChanged() }
 		updates.onChange = { [weak self] in self?.controllerChanged() }
+		updates.isAutomatic = { [weak model] in model?.config.isAutoUpdateEnabled ?? true }
+		updates.isIdle = { [weak self, weak controller] in
+			guard let self, let controller, !self.isMenuOpen else { return false }
+			// Nothing listening, thinking, speaking or running in the background, and no Bol window open.
+			let hasOpenWindow = NSApp.windows.contains { $0.isVisible && $0.styleMask.contains(.titled) }
+			return controller.state == .idle && controller.tasks.isEmpty && !controller.isWorkingInBackground
+				&& !hasOpenWindow
+		}
+		updates.announce = { [weak controller] title, detail in
+			controller?.hud.notice(title: title, detail: detail, icon: "arrow.down.circle", hideAfter: 4)
+		}
 		updates.start()
 		if UserDefaults.standard.bool(forKey: Constants.devHooksDefaultsKey) { installDevHooks(controller: controller) }
 		if config.hasCompletedOnboarding, config.hasAcceptedCurrentTerms {
@@ -319,9 +330,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 			menu.addItem(.separator())
 		}
 		if let release = updates.available {
-			let update = item(
-				title: "Download Bol \(release.version)…", action: #selector(downloadUpdate),
-				symbol: "arrow.down.circle")
+			let update: NSMenuItem
+			switch updates.status {
+			case .ready:
+				update = item(
+					title: "Restart to Update to \(release.version)", action: #selector(installUpdate),
+					symbol: "arrow.down.circle")
+			case .downloading, .checking:
+				update = item(title: "Downloading Bol \(release.version)…", action: nil, symbol: "arrow.down.circle")
+				update.isEnabled = false
+			case .installing:
+				update = item(title: "Updating Bol…", action: nil, symbol: "arrow.down.circle")
+				update.isEnabled = false
+			case .manual, .idle, .upToDate:
+				update = item(
+					title: "Download Bol \(release.version)…", action: #selector(downloadUpdate),
+					symbol: "arrow.down.circle")
+			}
 			update.toolTip = release.notes
 			menu.addItem(update)
 			menu.addItem(.separator())
@@ -458,6 +483,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 			title: "Open Bol…", action: #selector(openThreads), key: "t", symbol: "bubble.left.and.text.bubble.right")
 		if let shortcut = config.shortcuts.openBol { apply(shortcut: shortcut, item: openBol) }
 		menu.addItem(openBol)
+		menu.addItem(
+			item(title: "Check for Updates…", action: #selector(checkForUpdates), symbol: "arrow.triangle.2.circlepath")
+		)
 		menu.addItem(item(title: "Settings…", action: #selector(openSettings), key: ",", symbol: "gearshape"))
 		menu.addItem(item(title: "Quit Bol", action: #selector(quit), key: "q", symbol: "power"))
 	}
@@ -532,6 +560,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 	}
 
 	@objc private func downloadUpdate() { updates.openDownload() }
+
+	@objc private func installUpdate() { updates.install() }
+
+	@MainActor @objc private func checkForUpdates() { updates.checkNow() }
 
 	@MainActor @objc private func openHealth() {
 		UserDefaults.standard.set(Pane.assistant.rawValue, forKey: "settingsPane")

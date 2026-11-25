@@ -8,6 +8,7 @@ import SwiftUI
 
 struct GeneralPane: View {
 	@ObservedObject var model: SettingsModel
+	@ObservedObject private var updates = UpdateChecker.shared
 	private let tick = Timer.publish(every: 2, on: .main, in: .common).autoconnect()
 
 	var body: some View {
@@ -20,6 +21,7 @@ struct GeneralPane: View {
 					.labelsHidden().toggleStyle(.switch).controlSize(.small)
 				}
 			}
+			updatesGroup
 			otherAudio
 			SettingsGroup(title: "Files") {
 				fileRow(label: "Settings", icon: "gearshape", url: Constants.configFile)
@@ -42,6 +44,43 @@ struct GeneralPane: View {
 
 	private static let otherAudioOptions = OtherAudioBehavior.allCases.map {
 		SelectOption(id: $0.rawValue, title: $0.title, subtitle: $0.subtitle)
+	}
+
+	/// Version, automatic updates, and checking or installing by hand.
+	private var updatesGroup: some View {
+		SettingsGroup(title: "Updates") {
+			SettingsRow("Version", icon: "info.circle") {
+				Text("Bol \(UpdateChecker.currentVersion)").font(UI.body.monospacedDigit()).foregroundStyle(.secondary)
+			}
+			SettingsRow(
+				"Install automatically", icon: "arrow.down.circle",
+				help: "Downloads new versions and restarts Bol when it's idle"
+			) {
+				Toggle("", isOn: $model.config.isAutoUpdateEnabled).labelsHidden().toggleStyle(.switch)
+					.controlSize(.small)
+			}
+			SettingsRow("Check for updates", icon: "arrow.triangle.2.circlepath", help: updateStatus) {
+				if updates.status == .ready {
+					Button("Restart to Update") { updates.install() }.buttonStyle(SubtleButtonStyle(isProminent: true))
+				} else {
+					Button("Check Now") { updates.checkNow() }.buttonStyle(SubtleButtonStyle())
+						.disabled([.checking, .downloading, .installing].contains(updates.status))
+				}
+			}
+		}
+	}
+
+	private var updateStatus: String {
+		let version = updates.available?.version ?? ""
+		switch updates.status {
+		case .idle: return "Checked at launch and every 6 hours"
+		case .checking: return "Checking…"
+		case .upToDate: return "Up to date"
+		case .downloading: return "Downloading \(version)…"
+		case .ready: return "\(version) is ready to install"
+		case .installing: return "Installing…"
+		case .manual(let why): return version.isEmpty ? why : "\(version) is available. \(why)"
+		}
 	}
 
 	/// Other apps' sound for the whole conversation: while you speak and while Bol speaks.

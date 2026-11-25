@@ -30,6 +30,8 @@ struct Config: Codable, Equatable {
 	var claudeEffort = ClaudeEffort.medium
 	/// nil = Bol's own workspace (~/.bol/workspace), which keeps its sessions apart from yours.
 	var workingDirectory: String? = nil
+	/// Download new versions in the background and install them when Bol is idle (Settings → General).
+	var isAutoUpdateEnabled = true
 	/// The first-run setup was finished (it checks Claude Code, the login, the mic and the voice).
 	var hasCompletedOnboarding = false
 	/// The Terms and Privacy Policy the user agreed to in setup, and when. Kept only on this Mac.

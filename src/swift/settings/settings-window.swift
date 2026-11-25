@@ -134,15 +134,18 @@ struct SettingsView: View {
 				}
 			}
 			Spacer()
-			if let talk = model.config.shortcuts.talk {
-				HStack(spacing: 7) {
-					Text("Talk").foregroundStyle(.tertiary)
-					KeyCaps(shortcut: talk, size: 10)
+			VStack(alignment: .leading, spacing: 8) {
+				if let talk = model.config.shortcuts.talk {
+					HStack(spacing: 7) {
+						Text("Talk").foregroundStyle(.tertiary)
+						KeyCaps(shortcut: talk, size: 10)
+					}
 				}
-				.font(UI.caption)
-				.padding(.horizontal, 12)
-				.padding(.bottom, 14)
+				VersionFooter(updates: UpdateChecker.shared)
 			}
+			.font(UI.caption)
+			.padding(.horizontal, 12)
+			.padding(.bottom, 14)
 		}
 		.padding(.horizontal, 10)
 		.frame(width: 200)
@@ -219,6 +222,26 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 			guard let self, self.window?.isVisible != true else { return }
 			self.window?.delegate = nil
 			self.window = nil
+		}
+	}
+}
+
+/// The Settings sidebar's last line: Bol's version, and "Restart to update" once an update is ready.
+private struct VersionFooter: View {
+	@ObservedObject var updates: UpdateChecker
+
+	var body: some View {
+		HStack(spacing: 6) {
+			Text("Bol \(UpdateChecker.currentVersion)").foregroundStyle(.tertiary).monospacedDigit()
+			switch updates.status {
+			case .ready:
+				Button("· Restart to update") { updates.install() }
+					.buttonStyle(.plain).foregroundStyle(Color.accentColor)
+			case .downloading:
+				Text("· Updating…").foregroundStyle(.tertiary)
+			case .idle, .checking, .upToDate, .installing, .manual:
+				EmptyView()
+			}
 		}
 	}
 }

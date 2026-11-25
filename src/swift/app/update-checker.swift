@@ -8,6 +8,8 @@ struct Release: Decodable, Equatable {
 	let build: Int
 	/// The DMG.
 	let url: URL
+	/// Hex SHA-256 of the DMG: an update is only installed when the download matches it.
+	var sha256: String? = nil
 	let minimumSystemVersion: String?
 	let notes: String?
 
@@ -21,29 +23,63 @@ struct Release: Decodable, Equatable {
 	}
 }
 
-/// Polls the update feed and, when a newer build is out, notifies once per release and offers it in the menu.
-/// Installing stays manual: the notification and menu item open the DMG download.
-final class UpdateChecker: NSObject, UNUserNotificationCenterDelegate {
+/// Keeps Bol up to date. Checks the feed at launch, every few hours and on request. A newer release is
+/// downloaded and checked in the background (see `UpdateInstaller`), then installed in place and relaunched
+/// once Bol is idle (or right away from "Restart to Update"). When Bol can't update itself (a dev build, or a
+/// folder it can't write to), it falls back to a notification and the menu item that open the DMG.
+final class UpdateChecker: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
+	enum Status: Equatable {
+		case idle
+		case checking
+		case upToDate
+		case downloading
+		/// Downloaded and checked; installs when Bol is idle, or from "Restart to Update".
+		case ready
+		case installing
+		/// Can't update itself; the release is offered as a download instead.
+		case manual(String)
+	}
+
+	/// The app's own updater (the tests make their own, which only check and notify).
+	static let shared = UpdateChecker(installsUpdates: true)
+
 	/// The newer release, once one is found.
-	private(set) var available: Release?
+	@Published private(set) var available: Release?
+	@Published private(set) var status = Status.idle
 	var onChange: (() -> Void)?
+	/// Whether Bol is quiet enough to restart: nothing listening, working or open (set by the app).
+	var isIdle: () -> Bool = { false }
+	/// Settings → General → Install updates automatically.
+	var isAutomatic: () -> Bool = { true }
+	/// Shows a short message in the voice bar (set by the app).
+	var announce: (_ title: String, _ detail: String) -> Void = { _, _ in }
 
 	private let feedURL: URL
 	private let session: URLSession
 	private let currentBuild: Int?
 	private let defaults: UserDefaults
+	private let installsUpdates: Bool
 	/// Shows the notification; the default posts a macOS notification (tests pass their own).
 	private let present: (Release) async -> Bool
 	private var timer: Timer?
+	private var installTimer: Timer?
+	private var staged: URL?
+	/// Consecutive minutes Bol has been idle with an update ready.
+	private var idleMinutes = 0
 	private static let notifiedBuildKey = "BolNotifiedUpdateBuild"
+	private static let updatedFromKey = "BolUpdatedFromVersion"
 	/// Dev-only override, to try updates against a local feed: `defaults write com.agentbol.bol BolUpdateFeedURL <url>`.
 	static let feedOverrideKey = "BolUpdateFeedURL"
 	fileprivate static let notificationCategory = "update"
 
+	static var currentVersion: String {
+		Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
+	}
+
 	init(
 		feedURL: URL? = nil, session: URLSession = .shared,
 		currentBuild: Int? = (Bundle.main.infoDictionary?["CFBundleVersion"] as? String).flatMap { Int($0) },
-		defaults: UserDefaults = .standard, present: ((Release) async -> Bool)? = nil
+		defaults: UserDefaults = .standard, installsUpdates: Bool = false, present: ((Release) async -> Bool)? = nil
 	) {
 		self.feedURL =
 			feedURL ?? defaults.string(forKey: Self.feedOverrideKey).flatMap { URL(string: $0) }
@@ -51,6 +87,7 @@ final class UpdateChecker: NSObject, UNUserNotificationCenterDelegate {
 		self.session = session
 		self.currentBuild = currentBuild
 		self.defaults = defaults
+		self.installsUpdates = installsUpdates
 		self.present = present ?? UpdateChecker.postNotification
 		super.init()
 	}
@@ -59,6 +96,7 @@ final class UpdateChecker: NSObject, UNUserNotificationCenterDelegate {
 		// Unbundled runs (swift run, tests) have no build number to compare.
 		guard currentBuild != nil, Bundle.main.bundleIdentifier != nil else { return }
 		UNUserNotificationCenter.current().delegate = self
+		announceFinishedUpdate()
 		let timer = Timer(timeInterval: Constants.updateCheckSeconds, repeats: true) { [weak self] _ in
 			Task { await self?.check() }
 		}
@@ -70,32 +108,138 @@ final class UpdateChecker: NSObject, UNUserNotificationCenterDelegate {
 		}
 	}
 
+	/// The menu's and Settings' "Check for Updates": says so when Bol is already current.
+	@MainActor func checkNow() {
+		Task { @MainActor in await check(isManual: true) }
+	}
+
 	func openDownload() {
 		guard let available else { return }
 		NSWorkspace.shared.open(available.url)
 	}
 
-	/// Reads the feed once: updates `available` (calling `onChange` when it changes) and notifies about a
-	/// release it hasn't notified about before.
-	@MainActor func check() async {
+	/// Reads the feed once: updates `available` (calling `onChange` when it changes), then gets a newer
+	/// release ready to install, or notifies about it once when Bol can't update itself.
+	@MainActor func check(isManual: Bool = false) async {
 		guard let currentBuild else { return }
+		switch status {
+		case .checking, .downloading, .installing: return
+		case .ready:
+			if isManual { announce("Update ready", "Restart Bol to finish updating.") }
+			return
+		case .idle, .upToDate, .manual: break
+		}
+		let previous = status
+		status = .checking
 		var request = URLRequest(url: feedURL)
 		request.cachePolicy = .reloadIgnoringLocalCacheData
 		request.timeoutInterval = 20
 		do {
 			let (data, response) = try await session.data(for: request)
-			guard (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+			guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+				status = previous
+				if isManual { announce("Couldn't check for updates", "agentbol.com didn't answer. Try again later.") }
+				return
+			}
 			let release = try JSONDecoder().decode(Release.self, from: data)
 			let update =
 				release.isUpdate(
 					currentBuild: currentBuild, systemVersion: ProcessInfo.processInfo.operatingSystemVersion)
 				? release : nil
-			guard update != available else { return }
-			available = update
-			onChange?()
-			if let update { await notify(release: update) }
+			guard let update else {
+				status = .upToDate
+				if available != nil {
+					available = nil
+					onChange?()
+				}
+				if isManual { announce("Bol is up to date", "Version \(Self.currentVersion)") }
+				return
+			}
+			if update != available {
+				available = update
+				onChange?()
+			}
+			await prepare(release: update)
 		} catch {
+			status = previous
 			Log.info(message: "update check failed: \(error.localizedDescription)")
+			if isManual { announce("Couldn't check for updates", error.localizedDescription) }
+		}
+	}
+
+	/// Downloads and checks the release so it can be installed; otherwise offers it as a download.
+	@MainActor private func prepare(release: Release) async {
+		guard installsUpdates else {
+			status = .manual("Download it from agentbol.com.")
+			await notify(release: release)
+			return
+		}
+		let current: URL
+		switch UpdateInstaller.installableLocation() {
+		case .success(let url): current = url
+		case .failure(let failure):
+			status = .manual(failure.localizedDescription)
+			await notify(release: release)
+			onChange?()
+			return
+		}
+		status = .downloading
+		onChange?()
+		do {
+			let dmg = try await UpdateInstaller.download(release: release, session: session)
+			staged = try await UpdateInstaller.stage(dmg: dmg, release: release, replacing: current)
+			status = .ready
+			Log.info(message: "update: \(release.version) (\(release.build)) ready to install")
+			scheduleInstall()
+		} catch {
+			Log.info(message: "update: \(release.version) not installable: \(error.localizedDescription)")
+			status = .manual(error.localizedDescription)
+			await notify(release: release)
+		}
+		onChange?()
+	}
+
+	/// Installs once Bol has been idle for two minutes in a row (checked every minute), when automatic.
+	private func scheduleInstall() {
+		installTimer?.invalidate()
+		idleMinutes = 0
+		let timer = Timer(timeInterval: 60, repeats: true) { [weak self] _ in
+			guard let self, self.status == .ready, self.isAutomatic() else { return }
+			self.idleMinutes = self.isIdle() ? self.idleMinutes + 1 : 0
+			if self.idleMinutes >= 2 { self.install() }
+		}
+		RunLoop.main.add(timer, forMode: .common)
+		installTimer = timer
+	}
+
+	/// Swaps the new version in and relaunches. From the menu's "Restart to Update", or when idle.
+	func install() {
+		guard status == .ready, let staged, let available else { return }
+		status = .installing
+		onChange?()
+		let current = Bundle.main.bundleURL
+		do {
+			try UpdateInstaller.install(staged: staged, replacing: current)
+			defaults.set(Self.currentVersion, forKey: Self.updatedFromKey)
+			Log.info(message: "update: installed \(available.version), relaunching")
+			UpdateInstaller.relaunch(app: current)
+			NSApp.terminate(nil)
+		} catch {
+			Log.info(message: "update: install failed: \(error.localizedDescription)")
+			status = .manual("Couldn't replace the app: \(error.localizedDescription)")
+			onChange?()
+			announce("Couldn't install the update", "Download it from agentbol.com instead.")
+		}
+	}
+
+	/// After a relaunch into a new version: say so once.
+	private func announceFinishedUpdate() {
+		guard let from = defaults.string(forKey: Self.updatedFromKey) else { return }
+		defaults.removeObject(forKey: Self.updatedFromKey)
+		guard from != Self.currentVersion else { return }
+		Log.info(message: "update: now on \(Self.currentVersion) (from \(from))")
+		DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+			self?.announce("Bol updated", "Now on version \(Self.currentVersion).")
 		}
 	}
 

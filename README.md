@@ -9,7 +9,7 @@ Mac, then tells you when it's done. Runs on your Claude subscription. [agentbol.
 2. [Download Bol](https://agentbol.com/download), drag it to Applications, open it. Setup takes two minutes.
 3. Press **⌘J** anywhere and talk.
 
-macOS 13+, Apple silicon or Intel. Signed, notarized, and it tells you when an update is out.
+macOS 13+, Apple silicon or Intel. Signed, notarized, and it updates itself when it's idle.
 
 > [!WARNING]
 > Bol runs Claude Code with **permission checks off**: it acts on your Mac without asking first.
