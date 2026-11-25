@@ -410,24 +410,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 			}
 		}
 
-		// Last exchange
-		if !controller.lastPrompt.isEmpty || !controller.lastReply.isEmpty {
-			menu.addItem(.separator())
-			if #available(macOS 14.0, *) { menu.addItem(NSMenuItem.sectionHeader(title: "Last exchange")) }
-			if !controller.lastPrompt.isEmpty {
-				let you = item(title: "You: " + truncated(text: controller.lastPrompt), action: nil, symbol: "person")
-				you.isEnabled = false
-				you.toolTip = controller.lastPrompt
-				menu.addItem(you)
-			}
-			if !controller.lastReply.isEmpty {
-				let bol = item(
-					title: "Bol: " + truncated(text: controller.lastReply), action: #selector(copyReply),
-					symbol: "waveform")
-				bol.toolTip = "Click to copy · " + controller.lastReply
-				menu.addItem(bol)
-			}
-		}
 		let newConversation = item(
 			title: "New Conversation", action: #selector(newConversation), shortcut: config.shortcuts.newConversation,
 			symbol: "square.and.pencil")
@@ -540,12 +522,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 	@objc private func pickModel(_ sender: NSMenuItem) {
 		guard let id = sender.representedObject as? String, let model = ClaudeModel(rawValue: id) else { return }
 		session?.settings.model.config.claudeModel = model
-	}
-
-	@objc private func copyReply() {
-		guard let reply = session?.controller.lastReply else { return }
-		NSPasteboard.general.clearContents()
-		NSPasteboard.general.setString(reply, forType: .string)
 	}
 
 	@objc private func openSettings() { session?.settings.show() }
