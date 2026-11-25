@@ -1,9 +1,9 @@
 {
-	"version": "0.1.8",
-	"build": 9,
-	"url": "https://dl.agentbol.com/Bol-0.1.8.dmg",
-	"sha256": "81a70099514db0121e802a3f2f56864285ff4c147a31bf87fe8765971d87b115",
+	"version": "0.1.9",
+	"build": 10,
+	"url": "https://dl.agentbol.com/Bol-0.1.9.dmg",
+	"sha256": "5bc84fa90d3626e97cd38195443067c2ebac2ee1961ee1a4ce13c83053db4ad5",
 	"minimumSystemVersion": "13.0",
-	"releasedAt": "2026-11-25T14:34:13.995Z",
-	"notes": "A cleaner update button in Settings, and quieter logs."
+	"releasedAt": "2026-11-25T15:30:48.103Z",
+	"notes": "Anything Bol deletes now goes to the Trash, so mistakes can be undone."
 }
