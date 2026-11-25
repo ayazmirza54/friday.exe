@@ -13,6 +13,7 @@ import {
 	IS_CHROME_ENABLED,
 	MEMORY_DIR,
 	PROMPT_FILE,
+	SAFETY_PROMPT,
 	SCREEN_MODE,
 	SESSION_FILE,
 	THREADS_FILE,
@@ -177,7 +178,8 @@ class Conversation {
 	/** Runs until closed. Every event carries the conversation's job at the moment it's sent. */
 	async run({ origin }: { origin: Origin }) {
 		const [resume, prompt, custom] = await Promise.all([resumeId({ origin }), currentPrompt(), loadCustomServers()])
-		const append = prompt + (this.taskName == null ? THREAD_TASK_PROMPT : taskPrompt({ name: this.taskName }))
+		const append =
+			prompt + SAFETY_PROMPT + (this.taskName == null ? THREAD_TASK_PROMPT : taskPrompt({ name: this.taskName }))
 		if (origin.kind === 'resume' && resume != null) {
 			this.lastActivityAt = (await lastActivity({ sessionId: resume }))?.getTime() ?? Date.now()
 		}

@@ -391,7 +391,7 @@ struct InstructionsEditor: View {
 		SettingsGroup(
 			title: "Instructions",
 			footer:
-				"Sent with every session, on top of Claude Code's own system prompt. Applying restarts the brain; the conversation continues.",
+				"Sent with every session, on top of Claude Code's own system prompt. Bol always adds its safety rules too: deleted files go to the Trash, never away for good. Applying restarts the brain; the conversation continues.",
 			trailing: AnyView(badge)
 		) {
 			VStack(alignment: .leading, spacing: 10) {
