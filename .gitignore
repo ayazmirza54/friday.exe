@@ -1,0 +1,27 @@
+# Build output
+.build/
+build/
+*.xcodeproj
+.swiftpm/
+
+# Dependencies
+node_modules/
+
+# Cloudflare (website/)
+.cloudflare/
+.wrangler/
+
+# Local tool state
+.claude/
+.DS_Store
+
+# Secrets and signing material: never commit these
+.env
+.env.*
+*.p8
+*.p12
+*.cer
+*.key
+*.csr
+*.pem
+*.mobileprovision

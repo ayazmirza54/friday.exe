@@ -1,0 +1,9 @@
+{
+	"version": "0.1.5",
+	"build": 6,
+	"url": "https://dl.agentbol.com/Bol-0.1.5.dmg",
+	"sha256": "f761ead77dff2a1f469c339282ff35bb1e0aeeea99fc3bade42f40510b9ea5e7",
+	"minimumSystemVersion": "13.0",
+	"releasedAt": "2026-11-25T13:52:49.669Z",
+	"notes": "Setup now ends with a short summary of how Bol works and the Terms to agree to."
+}

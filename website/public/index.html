@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Bol: talk to your Mac, Claude does the work</title>
+		<meta
+			name="description"
+			content="A voice assistant for macOS on your Claude subscription. Press ⌘J, say what you need, and Claude Code does it."
+		/>
+		<link rel="canonical" href="https://agentbol.com/" />
+		<meta name="robots" content="index, follow" />
+		<meta name="theme-color" content="#0c0c0c" media="(prefers-color-scheme: dark)" />
+		<meta name="theme-color" content="#fbfbfb" media="(prefers-color-scheme: light)" />
+		<meta name="color-scheme" content="dark light" />
+		<meta name="application-name" content="Bol" />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content="Bol" />
+		<meta property="og:logo" content="https://agentbol.com/assets/icon.png?v=2" />
+		<meta property="og:locale" content="en_US" />
+		<meta property="og:url" content="https://agentbol.com/" />
+		<meta property="og:title" content="Bol: talk to your Mac, Claude does the work" />
+		<meta
+			property="og:description"
+			content="A voice assistant for macOS on your Claude subscription. Press ⌘J, say what you need, and Claude Code does it."
+		/>
+		<meta property="og:image" content="https://agentbol.com/assets/og.png" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:type" content="image/png" />
+		<meta
+			property="og:image:alt"
+			content="Bol, a pixel-art bird on a voice bar, next to the words: Talk to your Mac. Claude does the work."
+		/>
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Bol: talk to your Mac, Claude does the work" />
+		<meta
+			name="twitter:description"
+			content="A voice assistant for macOS on your Claude subscription. Press ⌘J, say what you need, and Claude Code does it."
+		/>
+		<meta name="twitter:image" content="https://agentbol.com/assets/og.png" />
+		<meta
+			name="twitter:image:alt"
+			content="Bol, a pixel-art bird on a voice bar, next to the words: Talk to your Mac. Claude does the work."
+		/>
+		<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+		<link rel="icon" href="/assets/favicon-48.png" type="image/png" sizes="48x48" />
+		<link rel="icon" href="/favicon.ico" sizes="any" />
+		<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@type": "SoftwareApplication",
+				"sameAs": ["https://github.com/mehulmpt/bol"],
+				"name": "Bol",
+				"url": "https://agentbol.com/",
+				"description": "A voice assistant for macOS that runs on your Claude subscription. Press ⌘J, say what you need, and Claude Code does it on your Mac.",
+				"image": "https://agentbol.com/assets/og.png",
+				"screenshot": "https://agentbol.com/assets/setup.png",
+				"applicationCategory": "UtilitiesApplication",
+				"operatingSystem": "macOS 13 or later",
+				"downloadUrl": "https://agentbol.com/download",
+				"softwareVersion": "0.1.0",
+				"license": "https://opensource.org/licenses/MIT",
+				"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+			}
+		</script>
+		<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="stylesheet" href="styles.css?v=f2beab8a60" />
+	</head>
+	<body>
+		<a class="skip" href="#main">Skip to content</a>
+
+		<div class="page">
+			<header class="nav">
+				<a class="brand" href="#" aria-label="Bol home">
+					<img class="brand-mascot" src="assets/bol.svg" alt="" width="24" height="26" />
+					<span>bol</span>
+				</a>
+				<nav class="nav-links" aria-label="Primary">
+					<a href="#features">Features</a>
+					<a href="#how">How it works</a>
+					<a href="#shortcuts">Shortcuts</a>
+					<a href="#faq">FAQ</a>
+				</nav>
+				<a
+					class="icon-button"
+					href="https://github.com/mehulmpt/bol"
+					aria-label="Bol on GitHub"
+					title="Bol on GitHub"
+				>
+					<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+						<path
+							fill="currentColor"
+							d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+						/>
+					</svg>
+				</a>
+				<a class="button button-small" href="#download">Download</a>
+			</header>
+
+			<main id="main">
+				<!-- Hero -->
+				<section class="hero">
+					<p class="eyebrow mono"><span class="dot"></span> macOS voice assistant</p>
+					<h1>Talk to your Mac.<br />Claude does the work.</h1>
+					<p class="lead">
+						<span>Press <kbd>⌘J</kbd> and say what you need.</span>
+						<span
+							>Claude Code does it on your Mac and tells you when it's done. Runs on your Claude
+							subscription.</span
+						>
+					</p>
+					<div class="hero-actions">
+						<a class="button" href="#download">
+							<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+								<path
+									fill="currentColor"
+									d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.45-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66l.04-.03ZM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.66 1.37-.58.67-1.1 1.76-.96 2.8 1.01.08 2.05-.52 2.68-1.28Z"
+								/>
+							</svg>
+							Download for macOS
+						</a>
+						<a class="button button-secondary" href="https://github.com/mehulmpt/bol">
+							<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+								<path
+									fill="currentColor"
+									d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+								/>
+							</svg>
+							View on GitHub
+						</a>
+						<span class="mono muted small">macOS 13+ · Apple silicon &amp; Intel</span>
+					</div>
+
+					<div class="stage" aria-label="Bol voice bar demo">
+						<div class="stage-wall" aria-hidden="true"></div>
+						<div class="stage-hint mono" aria-hidden="true">
+							<kbd>⌘</kbd><kbd>J</kbd><span>to talk</span>
+						</div>
+
+						<div class="hud" id="hud" data-phase="speaking">
+							<div class="hud-ring" aria-hidden="true"></div>
+							<!-- Bol perches on the end of the bar: tilts its head while you talk, looks around while it works, chatters while it speaks -->
+							<button class="mascot" id="mascot" type="button" aria-label="Bol. Say hi">
+								<span class="mascot-say mono" id="mascot-say" aria-live="polite"></span>
+								<svg
+									class="mascot-art"
+									viewBox="0 0 16 17"
+									shape-rendering="crispEdges"
+									aria-hidden="true"
+								>
+									<g class="mascot-body">
+										<rect x="7" y="0" width="2" height="1" fill="#8c5cf5" />
+										<rect x="8" y="1" width="2" height="1" fill="#8c5cf5" />
+										<rect x="5" y="2" width="6" height="1" fill="#8c5cf5" />
+										<rect x="4" y="3" width="8" height="1" fill="#8c5cf5" />
+										<rect x="3" y="4" width="6" height="1" fill="#8c5cf5" />
+										<rect x="11" y="4" width="1" height="1" fill="#8c5cf5" />
+										<rect x="12" y="4" width="2" height="1" fill="#fa923d" />
+										<rect x="3" y="5" width="6" height="1" fill="#8c5cf5" />
+										<rect x="11" y="5" width="1" height="1" fill="#8c5cf5" />
+										<rect x="12" y="5" width="3" height="1" fill="#fa923d" />
+										<rect x="3" y="6" width="9" height="1" fill="#8c5cf5" />
+										<rect x="12" y="6" width="4" height="1" fill="#fa923d" />
+										<rect x="3" y="7" width="7" height="1" fill="#8c5cf5" />
+										<rect x="10" y="7" width="1" height="1" fill="#ed4a99" />
+										<rect x="11" y="7" width="1" height="1" fill="#8c5cf5" />
+										<rect x="14" y="7" width="2" height="1" fill="#fa923d" />
+										<rect x="3" y="8" width="10" height="1" fill="#8c5cf5" />
+										<rect x="15" y="8" width="1" height="1" fill="#fa923d" />
+										<rect x="3" y="9" width="2" height="1" fill="#8c5cf5" />
+										<rect x="5" y="9" width="3" height="1" fill="#6b3fd6" />
+										<rect x="8" y="9" width="6" height="1" fill="#8c5cf5" />
+										<rect x="3" y="10" width="1" height="1" fill="#8c5cf5" />
+										<rect x="4" y="10" width="5" height="1" fill="#6b3fd6" />
+										<rect x="9" y="10" width="5" height="1" fill="#8c5cf5" />
+										<rect x="3" y="11" width="6" height="1" fill="#6b3fd6" />
+										<rect x="9" y="11" width="5" height="1" fill="#8c5cf5" />
+										<rect x="2" y="12" width="1" height="1" fill="#ed4a99" />
+										<rect x="3" y="12" width="5" height="1" fill="#6b3fd6" />
+										<rect x="8" y="12" width="6" height="1" fill="#8c5cf5" />
+										<rect x="1" y="13" width="2" height="1" fill="#ed4a99" />
+										<rect x="3" y="13" width="4" height="1" fill="#6b3fd6" />
+										<rect x="7" y="13" width="6" height="1" fill="#8c5cf5" />
+										<rect x="1" y="14" width="3" height="1" fill="#ed4a99" />
+										<rect x="4" y="14" width="2" height="1" fill="#6b3fd6" />
+										<rect x="6" y="14" width="6" height="1" fill="#8c5cf5" />
+										<rect x="0" y="15" width="2" height="1" fill="#ed4a99" />
+										<rect x="2" y="15" width="1" height="1" fill="#fa923d" />
+										<rect x="7" y="15" width="1" height="1" fill="#fa923d" />
+										<rect x="10" y="15" width="1" height="1" fill="#fa923d" />
+										<rect x="0" y="16" width="1" height="1" fill="#ed4a99" />
+										<rect x="1" y="16" width="1" height="1" fill="#fa923d" />
+										<rect x="6" y="16" width="2" height="1" fill="#fa923d" />
+										<rect x="9" y="16" width="2" height="1" fill="#fa923d" />
+									</g>
+									<g class="mascot-jaw">
+										<rect x="12" y="7" width="2" height="1" fill="#d9701f" />
+										<rect x="13" y="8" width="1" height="1" fill="#d9701f" />
+									</g>
+									<g class="mascot-eye">
+										<rect x="9" y="4" width="1" height="1" fill="#fff" />
+										<rect x="10" y="4" width="1" height="1" fill="#161616" />
+										<rect x="9" y="5" width="2" height="1" fill="#161616" />
+									</g>
+								</svg>
+							</button>
+							<div class="hud-orb" aria-hidden="true">
+								<span></span><span></span><span></span><span></span><span></span>
+							</div>
+							<div class="hud-body">
+								<div class="hud-top">
+									<span class="hud-status" id="hud-status">Bol</span>
+									<span class="hud-timer" id="hud-timer"></span>
+									<span class="hud-esc"><kbd>esc</kbd> <span id="hud-esc-label">stop</span></span>
+								</div>
+								<div class="hud-context" id="hud-context">“what's on my calendar tomorrow?”</div>
+								<div class="hud-text" id="hud-text">
+									You've got three things tomorrow: standup at 10, lunch with Priya at 1, and the
+									design review at 4. Want me to block focus time in the morning?
+								</div>
+								<div class="hud-activity" id="hud-activity" hidden>
+									<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+										<rect
+											x="1.5"
+											y="2.5"
+											width="13"
+											height="11"
+											rx="2"
+											fill="none"
+											stroke="currentColor"
+										/>
+										<path d="M4.5 6.5 6.5 8l-2 1.5M8 10h3" fill="none" stroke="currentColor" />
+									</svg>
+									<span id="hud-activity-text"></span>
+									<span class="hud-steps" id="hud-steps"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<div class="spacer dither" aria-hidden="true"></div>
+
+				<!-- What is Bol -->
+				<section class="section" id="features">
+					<div class="section-head">
+						<h2>Not a chatbot. A doer.</h2>
+						<p>
+							A menu-bar app that puts Claude Code behind your voice. It opens apps, runs commands and
+							reads your screen to get things done.
+						</p>
+					</div>
+					<ul class="features">
+						<li>
+							<strong>Talk with ⌘J</strong>
+							<span>One shortcut, anywhere. No wake word; the mic opens only while you talk.</span>
+						</li>
+						<li>
+							<strong>Real work on your Mac</strong>
+							<span>Every Claude Code tool: shell, files, web, MCP servers, Claude in Chrome.</span>
+						</li>
+						<li>
+							<strong>Frontier models only</strong>
+							<span>Claude Opus 5.5 or Fable 5.2, never below medium effort. No smaller models.</span>
+						</li>
+						<li>
+							<strong>Computer use, built from scratch</strong>
+							<span
+								>Its own computer use, without the guardrails: it sees your screen and clicks, types and
+								scrolls in any app. No per-app prompts.</span
+							>
+						</li>
+						<li>
+							<strong>Background tasks</strong>
+							<span>Long jobs run on their own. Bol comes back when they're done.</span>
+						</li>
+						<li>
+							<strong>Dictation everywhere</strong>
+							<span
+								>Hold <kbd>fn</kbd> in any text field, speak, let go. The text lands where you're
+								typing.</span
+							>
+						</li>
+						<li>
+							<strong>Threads and memory</strong>
+							<span>Every conversation and step, searchable. Memory in plain markdown you own.</span>
+						</li>
+						<li>
+							<strong>Interrupt any time</strong>
+							<span>Esc silences it. ⌘J cuts in. Say “stay with me” to watch it work.</span>
+						</li>
+						<li>
+							<strong>Voices</strong>
+							<span>Free macOS voices, or OpenAI and Noiz AI with your own key.</span>
+						</li>
+						<li>
+							<strong>Doesn't stop to ask</strong>
+							<span
+								>Full permissions on your Mac: it acts instead of asking for approval. Be
+								specific.</span
+							>
+						</li>
+					</ul>
+				</section>
+
+				<!-- Three ways -->
+				<section class="section">
+					<div class="section-head">
+						<h2>Three ways to use it</h2>
+						<p>Talk to get things done. Dictate to write. Read back what it did.</p>
+					</div>
+					<div class="cards">
+						<article class="card">
+							<div class="card-media media-talk" aria-hidden="true">
+								<div class="mini-hud">
+									<div class="hud-orb small">
+										<span></span><span></span><span></span><span></span><span></span>
+									</div>
+									<div>
+										<div class="mini-status">Working <span class="muted">12s</span></div>
+										<div class="mini-text">“clean up my desktop into folders by type”</div>
+										<div class="mini-act">Moving 34 files · 6 steps</div>
+									</div>
+								</div>
+							</div>
+							<div class="card-copy">
+								<h3>Talk</h3>
+								<p>
+									Press <span class="combo" aria-label="Command J"><kbd>⌘</kbd><kbd>J</kbd></span
+									>, ask, keep working. Replies are spoken and stay on screen.
+								</p>
+							</div>
+						</article>
+						<article class="card">
+							<div class="card-media media-dictate" aria-hidden="true">
+								<div class="fake-field">
+									<div class="fake-field-label">To: Sam</div>
+									<p id="dictate-text"></p>
+								</div>
+								<div class="dictate-pill"><span class="rec"></span> Dictating <kbd>fn</kbd></div>
+							</div>
+							<div class="card-copy">
+								<h3>Dictate</h3>
+								<p>
+									Hold <kbd>fn</kbd> anywhere and speak. Double-tap for hands-free.
+									<span class="combo" aria-label="Option Shift V"
+										><kbd>⌥</kbd><kbd>⇧</kbd><kbd>V</kbd></span
+									>
+									pastes the last one again.
+								</p>
+							</div>
+						</article>
+						<article class="card">
+							<div class="card-media media-threads" aria-hidden="true">
+								<div class="fake-threads">
+									<aside>
+										<div class="ft-group">Working</div>
+										<div class="ft-row active"><span>Weekly report deck</span><em>2m</em></div>
+										<div class="ft-group">Today</div>
+										<div class="ft-row"><span>Desktop cleanup</span><em>3h</em></div>
+										<div class="ft-row"><span>Flight check-in</span><em>5h</em></div>
+										<div class="ft-group">Yesterday</div>
+										<div class="ft-row"><span>Fix failing tests</span><em>1d</em></div>
+									</aside>
+									<div class="ft-main">
+										<div class="ft-user">make a deck from this week's metrics</div>
+										<div class="ft-worked">› Worked for 4m 34s · 29 steps</div>
+										<div class="ft-reply">
+											<span></span><span></span><span class="short"></span>
+										</div>
+										<div class="ft-task"><b>Task</b> weekly-report-deck <i>working</i></div>
+									</div>
+								</div>
+							</div>
+							<div class="card-copy">
+								<h3>Threads</h3>
+								<p>
+									Open Bol with
+									<span class="combo" aria-label="Command T"><kbd>⌘</kbd><kbd>T</kbd></span> for every
+									thread, the steps it took, and follow-ups.
+								</p>
+							</div>
+						</article>
+					</div>
+				</section>
+
+				<!-- How it works -->
+				<section class="section" id="how">
+					<div class="section-head">
+						<h2>How it works</h2>
+						<p>
+							Voice in, finished work out. The thinking runs in Claude Code on your Mac, on your Claude
+							account.
+						</p>
+					</div>
+					<ol class="pipeline mono">
+						<li><span class="pk">⌘J</span><span>Mic opens, echo-cancelled</span></li>
+						<li><span class="pk">hear</span><span>Live speech-to-text on your subscription</span></li>
+						<li><span class="pk">think</span><span>Opus 5.5 or Fable 5.2, medium effort or more</span></li>
+						<li>
+							<span class="pk">act</span
+							><span>Shell, files, apps, browser, screen; long jobs run as tasks</span>
+						</li>
+						<li>
+							<span class="pk">speak</span><span>A spoken reply, then it listens for a follow-up</span>
+						</li>
+					</ol>
+					<div class="split">
+						<div class="split-copy">
+							<h3>No API key, no new bill</h3>
+							<p>
+								Bol uses your Claude Code and its subscription, speech-to-text included. Cloud voices
+								are optional.
+							</p>
+							<h3>Your Mac, your files</h3>
+							<p>
+								Threads, tasks, memory and dictations live in <code>~/.bol</code> as plain files. Bol
+								keeps its own transcripts, so Claude Code's cleanup never takes your history.
+							</p>
+							<h3>You decide how much it can do</h3>
+							<p>
+								Every macOS permission is optional and screen access is a switch. What you grant, Bol
+								uses without asking.
+							</p>
+						</div>
+						<figure class="shot">
+							<img
+								src="assets/permissions.png"
+								alt="Bol setup: the permissions step"
+								loading="lazy"
+								width="1320"
+								height="900"
+							/>
+						</figure>
+					</div>
+				</section>
+
+				<!-- Get started -->
+				<section class="section" id="download">
+					<div class="section-head">
+						<h2>Get started</h2>
+						<p>Setup checks everything in about two minutes.</p>
+					</div>
+					<ol class="steps">
+						<li>
+							<span class="step-n mono">01</span>
+							<div>
+								<h3 class="with-mascot">
+									<svg
+										class="clawd-art clawd-mini"
+										viewBox="0 0 18 10"
+										shape-rendering="crispEdges"
+										aria-hidden="true"
+									>
+										<g class="clawd-legs">
+											<rect class="leg-a" x="4" y="8" width="1" height="2" />
+											<rect class="leg-b" x="6" y="8" width="1" height="2" />
+											<rect class="leg-a" x="11" y="8" width="1" height="2" />
+											<rect class="leg-b" x="13" y="8" width="1" height="2" />
+										</g>
+										<g class="clawd-body">
+											<rect x="3" y="0" width="12" height="8" />
+											<rect class="clawd-arm clawd-arm-l" x="1" y="4" width="2" height="2" />
+											<rect class="clawd-arm clawd-arm-r" x="15" y="4" width="2" height="2" />
+											<g class="clawd-eyes">
+												<rect x="5" y="2" width="1" height="2" />
+												<rect x="12" y="2" width="1" height="2" />
+											</g>
+										</g></svg
+									>Install Claude Code
+								</h3>
+								<p>Bol thinks with Claude Code. Already have it? Skip this.</p>
+								<div class="cmd">
+									<code id="install-cmd">curl -fsSL https://claude.ai/install.sh | bash</code>
+									<button class="copy mono" type="button" data-copy="install-cmd">Copy</button>
+								</div>
+							</div>
+						</li>
+						<li>
+							<span class="step-n mono">02</span>
+							<div>
+								<h3 class="with-mascot">
+									<img class="mascot-mini" src="assets/bol.svg" alt="" width="18" height="19" />
+									Download Bol
+								</h3>
+								<p>Drag it to Applications and open it. Setup handles sign-in, mic and voice.</p>
+								<a class="button" href="/download">Download Bol.dmg</a>
+							</div>
+						</li>
+						<li>
+							<span class="step-n mono">03</span>
+							<div>
+								<h3>
+									Press <span class="combo" aria-label="Command J"><kbd>⌘</kbd><kbd>J</kbd></span>
+								</h3>
+								<p>Say what you need, like “what's on my calendar tomorrow?”</p>
+							</div>
+						</li>
+					</ol>
+					<figure class="shot shot-wide">
+						<img
+							src="assets/setup.png"
+							alt="Bol setup window: Claude Code, Claude subscription, microphone, voice and permission checks"
+							loading="lazy"
+							width="1320"
+							height="900"
+						/>
+					</figure>
+				</section>
+
+				<!-- Shortcuts -->
+				<section class="section" id="shortcuts">
+					<div class="section-head">
+						<h2>Keyboard first</h2>
+						<p>Everything has a key. Change any of them in Settings → Shortcuts.</p>
+					</div>
+					<table class="keys">
+						<tbody>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Command J"><kbd>⌘</kbd><kbd>J</kbd></span>
+								</td>
+								<td>Talk, or interrupt and listen</td>
+								<td><span class="keys-tag">changeable</span></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Return"><kbd>↩</kbd></span>
+								</td>
+								<td>Send what you said</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Escape"><kbd>esc</kbd></span>
+								</td>
+								<td>Stop, silence or dismiss</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Function"><kbd>fn</kbd></span>
+									<span class="keys-gesture">hold</span>
+								</td>
+								<td>Dictate into any app</td>
+								<td><span class="keys-tag">changeable</span></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Function"><kbd>fn</kbd></span>
+									<span class="keys-gesture">double-tap</span>
+								</td>
+								<td>Hands-free dictation</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Option Shift V"
+										><kbd>⌥</kbd><kbd>⇧</kbd><kbd>V</kbd></span
+									>
+								</td>
+								<td>Paste the last dictation again</td>
+								<td><span class="keys-tag">changeable</span></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Command T"><kbd>⌘</kbd><kbd>T</kbd></span>
+								</td>
+								<td>Open Bol</td>
+								<td><span class="keys-tag">changeable</span></td>
+							</tr>
+							<tr>
+								<td>
+									<span class="combo" aria-label="Command Comma"><kbd>⌘</kbd><kbd>,</kbd></span>
+								</td>
+								<td>Settings</td>
+								<td></td>
+							</tr>
+						</tbody>
+					</table>
+				</section>
+
+				<!-- FAQ -->
+				<section class="section" id="faq">
+					<div class="section-head">
+						<h2>FAQ</h2>
+					</div>
+					<div class="faq">
+						<details>
+							<summary>What do I need to use Bol?</summary>
+							<p>macOS 13+, Claude Code, and a Claude Pro or Max subscription. Setup checks all three.</p>
+						</details>
+						<details>
+							<summary>Do I need an Anthropic API key?</summary>
+							<p>No. Bol runs on your Claude subscription through Claude Code.</p>
+						</details>
+						<details>
+							<summary>Is Bol open source?</summary>
+							<p>
+								Yes, MIT-licensed. The app, its brain and this site are on
+								<a href="https://github.com/mehulmpt/bol">GitHub</a>.
+							</p>
+						</details>
+						<details>
+							<summary>Which AI models does Bol use?</summary>
+							<p>
+								Claude Opus 5.5 (default) or Fable 5.2, never below medium effort. Raise it in Settings
+								→ Assistant.
+							</p>
+						</details>
+						<details>
+							<summary>Is the microphone always on?</summary>
+							<p>
+								No. It opens when you press ⌘J or hold the dictation key, and closes when you're done.
+								No wake word.
+							</p>
+						</details>
+						<details>
+							<summary>What can it actually do?</summary>
+							<p>
+								Anything Claude Code can do on your Mac, plus its own computer use: it sees your screen
+								and clicks and types in any app.
+							</p>
+						</details>
+						<details>
+							<summary>Will it do something destructive without asking?</summary>
+							<p>
+								It can. Permission checks are off, so it won't pause before deleting files, running
+								<code>sudo</code> or sending a message. Be specific.
+							</p>
+						</details>
+						<details>
+							<summary>Where is my data stored?</summary>
+							<p>
+								On your Mac, in <code>~/.bol</code>. Requests go to Anthropic through your Claude
+								account; a cloud voice gets the reply text.
+							</p>
+						</details>
+						<details>
+							<summary>Does it replace my dictation app?</summary>
+							<p>
+								It can, or keep yours: give Bol another key or turn its dictation off. Setup suggests
+								this when it finds one.
+							</p>
+						</details>
+					</div>
+				</section>
+
+				<div class="spacer dither" aria-hidden="true"></div>
+
+				<!-- CTA -->
+				<section class="cta">
+					<img src="assets/icon.png?v=2" alt="" width="72" height="72" loading="lazy" />
+					<h2>Stop typing at your computer.</h2>
+					<p>Free to download. Bring your Claude subscription.</p>
+					<div class="cta-actions">
+						<a class="button" href="#download">Download for macOS</a>
+						<a class="button button-secondary" href="https://github.com/mehulmpt/bol">
+							<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+								<path
+									fill="currentColor"
+									d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"
+								/>
+							</svg>
+							View on GitHub
+						</a>
+					</div>
+				</section>
+			</main>
+
+			<footer class="footer mono">
+				<span>© 2026 Bol</span>
+				<nav aria-label="Footer">
+					<a href="#features">Features</a>
+					<a href="#how">How it works</a>
+					<a href="#faq">FAQ</a>
+					<a href="/privacy">Privacy</a>
+					<a href="/terms">Terms</a>
+					<a href="https://github.com/mehulmpt/bol">GitHub</a>
+				</nav>
+				<span class="muted">Not affiliated with Anthropic. Claude is a trademark of Anthropic.</span>
+			</footer>
+		</div>
+
+		<script src="main.js?v=3ad5bd7365"></script>
+	</body>
+</html>

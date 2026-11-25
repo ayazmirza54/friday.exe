@@ -1,0 +1,14 @@
+{
+	"name": "Bol",
+	"short_name": "Bol",
+	"description": "A voice assistant for macOS that runs on your Claude subscription.",
+	"start_url": "/",
+	"display": "browser",
+	"background_color": "#0c0c0c",
+	"theme_color": "#0c0c0c",
+	"icons": [
+		{ "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+		{ "src": "/assets/icon.png?v=2", "sizes": "512x512", "type": "image/png" },
+		{ "src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+	]
+}

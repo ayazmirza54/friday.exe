@@ -1,0 +1,117 @@
+<!doctype html>
+<!-- The DMG window's background, 660×420. Render: assets/dmg/render-background.sh (1x + 2x → background.tiff).
+     Finder draws icon labels white in Dark Mode and black in Light Mode, so the band behind them (y ≈ 280)
+     stays a mid-tone where both read at about 4.6:1. Icons sit at (170, 215) and (490, 215): see settings.py. -->
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<style>
+			@font-face {
+				font-family: 'Inter';
+				font-weight: 400 600;
+				src: url('../../website/public/fonts/inter-latin.woff2') format('woff2');
+			}
+			@font-face {
+				font-family: 'JetBrains Mono';
+				font-weight: 400 600;
+				src: url('../../website/public/fonts/jetbrains-mono-latin.woff2') format('woff2');
+			}
+			html,
+			body {
+				margin: 0;
+				width: 660px;
+				height: 420px;
+				overflow: hidden;
+			}
+			body {
+				position: relative;
+				font-family: 'Inter', sans-serif;
+				color: #fff;
+				background:
+					radial-gradient(70% 60% at 12% 0%, rgb(140 92 245 / 0.55), transparent 70%),
+					radial-gradient(55% 55% at 95% 10%, rgb(237 74 153 / 0.35), transparent 70%),
+					radial-gradient(70% 55% at 55% 115%, rgb(250 146 61 / 0.35), transparent 70%),
+					linear-gradient(180deg, #3f3358 0%, #6f6187 52%, #7b6a8c 70%, #6a5677 100%);
+			}
+			/* Fine dot grain, like the website's stage */
+			body::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background-image: radial-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px);
+				background-size: 4px 4px;
+				mask-image: linear-gradient(180deg, #000, transparent 75%);
+			}
+			h1 {
+				position: absolute;
+				top: 46px;
+				width: 100%;
+				margin: 0;
+				text-align: center;
+				font-size: 22px;
+				font-weight: 600;
+				letter-spacing: -0.01em;
+				text-shadow: 0 1px 12px rgb(0 0 0 / 0.25);
+			}
+			p {
+				position: absolute;
+				top: 80px;
+				width: 100%;
+				margin: 0;
+				text-align: center;
+				font-size: 13px;
+				color: rgb(255 255 255 / 0.78);
+			}
+			/* Soft wells where the icons sit */
+			.well {
+				position: absolute;
+				top: 141px;
+				width: 148px;
+				height: 148px;
+				border-radius: 34px;
+				background: rgb(255 255 255 / 0.07);
+				box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+			}
+			.arrow {
+				position: absolute;
+				left: 268px;
+				top: 191px;
+			}
+			footer {
+				position: absolute;
+				bottom: 18px;
+				width: 100%;
+				text-align: center;
+				font-family: 'JetBrains Mono', monospace;
+				font-size: 11px;
+				letter-spacing: 0.02em;
+				color: rgb(255 255 255 / 0.6);
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Drag Bol to Applications</h1>
+		<p>Then open it and press ⌘J to talk.</p>
+		<div class="well" style="left: 96px"></div>
+		<div class="well" style="left: 416px"></div>
+		<svg class="arrow" width="128" height="48" viewBox="0 0 128 48" aria-hidden="true">
+			<defs>
+				<linearGradient id="g" x1="0" x2="1">
+					<stop offset="0" stop-color="#fff" stop-opacity="0" />
+					<stop offset="1" stop-color="#fff" stop-opacity="0.95" />
+				</linearGradient>
+			</defs>
+			<path d="M4 24 H112" stroke="url(#g)" stroke-width="3" stroke-linecap="round" fill="none" />
+			<path
+				d="M100 12 L114 24 L100 36"
+				stroke="#fff"
+				stroke-opacity="0.95"
+				stroke-width="3"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				fill="none"
+			/>
+		</svg>
+		<footer>agentbol.com</footer>
+	</body>
+</html>

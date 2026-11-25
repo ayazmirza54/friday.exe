@@ -1,0 +1,12 @@
+[install]
+exact = true
+# 7 days, in seconds
+minimumReleaseAge = 604800
+
+[fmt]
+useTabs = true
+tabWidth = 4
+semi = false
+singleQuote = true
+printWidth = 120
+ignorePatterns = ["src/swift/", "assets/", "build/", ".build/", "*.md"]
