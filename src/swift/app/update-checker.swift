@@ -113,6 +113,12 @@ final class UpdateChecker: NSObject, ObservableObject, UNUserNotificationCenterD
 		Task { @MainActor in await check(isManual: true) }
 	}
 
+	/// Debug aid for `--render-settings`: shows an update as ready, without downloading anything.
+	func showPreview(release: Release) {
+		available = release
+		status = .ready
+	}
+
 	func openDownload() {
 		guard let available else { return }
 		NSWorkspace.shared.open(available.url)

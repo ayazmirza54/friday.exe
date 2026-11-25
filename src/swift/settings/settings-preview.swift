@@ -45,6 +45,9 @@ enum SettingsPreview {
 		model.checkEngine()
 		let deadline = Date().addingTimeInterval(15)
 		while model.engine == nil, Date() < deadline { RunLoop.current.run(until: Date().addingTimeInterval(0.1)) }
+		UpdateChecker.shared.showPreview(
+			release: Release(
+				version: "0.1.7", build: 8, url: Constants.updateFeedURL, minimumSystemVersion: nil, notes: nil))
 		for pane in Pane.allCases {
 			UserDefaults.standard.set(pane.rawValue, forKey: "settingsPane")
 			let controller = NSHostingController(rootView: SettingsView(model: model).environment(\.colorScheme, .dark))

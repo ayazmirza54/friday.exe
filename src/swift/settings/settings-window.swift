@@ -226,22 +226,37 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 	}
 }
 
-/// The Settings sidebar's last line: Bol's version, and "Restart to update" once an update is ready.
+/// The bottom of the Settings sidebar: an "Update to x" pill once an update is ready, and Bol's version.
 private struct VersionFooter: View {
 	@ObservedObject var updates: UpdateChecker
 
 	var body: some View {
-		HStack(spacing: 6) {
-			Text("Bol \(UpdateChecker.currentVersion)").foregroundStyle(.tertiary).monospacedDigit()
-			switch updates.status {
-			case .ready:
-				Button("· Restart to update") { updates.install() }
-					.buttonStyle(.plain).foregroundStyle(Color.accentColor)
-			case .downloading:
-				Text("· Updating…").foregroundStyle(.tertiary)
-			case .idle, .checking, .upToDate, .installing, .manual:
-				EmptyView()
+		VStack(alignment: .leading, spacing: 8) {
+			if updates.status == .ready, let version = updates.available?.version {
+				Button {
+					updates.install()
+				} label: {
+					HStack(spacing: 5) {
+						Image(systemName: "arrow.down.circle.fill")
+						Text("Update to \(version)")
+					}
+					.font(.system(size: 11, weight: .semibold))
+					.foregroundStyle(.white)
+					.padding(.horizontal, 9)
+					.padding(.vertical, 4)
+					.background(Color.accentColor, in: Capsule())
+					.fixedSize()
+				}
+				.buttonStyle(.plain)
+				.help("Restarts Bol to finish updating")
 			}
+			Text(
+				updates.status == .downloading
+					? "Bol \(UpdateChecker.currentVersion) · updating…" : "Bol \(UpdateChecker.currentVersion)"
+			)
+			.foregroundStyle(.tertiary)
+			.monospacedDigit()
+			.lineLimit(1)
 		}
 	}
 }
