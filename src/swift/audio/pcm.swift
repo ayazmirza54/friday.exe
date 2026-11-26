@@ -109,6 +109,20 @@ enum PCM {
 		for i in 0..<count { sum += channel[i] * channel[i] }
 		return min(1, sqrt(sum / Float(count)) * gain)
 	}
+
+	/// Loudness 0...1 of mono s16le PCM (RMS × `gain`), on the same scale as the float `level`.
+	static func level(int16Data data: Data, gain: Float) -> Float {
+		data.withUnsafeBytes { raw in
+			let samples = raw.bindMemory(to: Int16.self)
+			guard !samples.isEmpty else { return 0 }
+			var sum: Float = 0
+			for sample in samples {
+				let value = Float(sample) / 32768
+				sum += value * value
+			}
+			return min(1, sqrt(sum / Float(samples.count)) * gain)
+		}
+	}
 }
 
 extension Data {

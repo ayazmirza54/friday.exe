@@ -318,6 +318,11 @@ final class OnboardingModel: ObservableObject {
 				self.stopListening()
 			}
 			capture.onPCM16k = { [weak session] data in session?.send(pcm: data) }
+			capture.onError = { [weak self] error in
+				guard let self else { return }
+				self.speechTest = .failed(reason: "Couldn't open the microphone: \(error.localizedDescription)")
+				self.stopListening()
+			}
 			do {
 				try capture.start()
 			} catch {

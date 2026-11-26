@@ -178,6 +178,7 @@ final class Controller {
 				self.audioTarget?.send(pcm: data)
 			}
 		}
+		audio.onError = { [weak self] error in self?.micFailed(error: error) }
 		brain.onEvent = { [weak self] event in self?.handleBrain(event: event) }
 		dictationKeys.onOutput = { [weak self] output in self?.handleDictation(output: output) }
 		dictations.load()
@@ -534,19 +535,22 @@ final class Controller {
 			do {
 				try audio.start()
 			} catch {
-				Log.info(message: "audio: start failed: \(error)")
 				// Out of this state's didSet, so the change to idle runs its own updates.
-				DispatchQueue.main.async { [weak self] in
-					guard let self, case .listening = self.state else { return }
-					self.abortListening()
-					self.goIdle()
-					self.hud.error(title: "Couldn't start microphone", detail: error.localizedDescription)
-				}
+				DispatchQueue.main.async { [weak self] in self?.micFailed(error: error) }
 			}
 		} else if !isMicNeeded, audio.isRunning {
 			audio.stop()
 			Log.info(message: "audio: mic released")
 		}
+	}
+
+	/// The mic didn't open (or stopped working): stop listening and say why.
+	private func micFailed(error: Error) {
+		Log.info(message: "audio: start failed: \(error.localizedDescription)")
+		guard case .listening = state else { return }
+		abortListening()
+		goIdle()
+		hud.error(title: "Couldn't start microphone", detail: error.localizedDescription)
 	}
 
 	// MARK: Listening

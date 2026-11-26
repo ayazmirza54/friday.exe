@@ -51,6 +51,14 @@ enum Constants {
 	/// Microphone audio is 16 kHz mono signed 16-bit PCM everywhere after capture.
 	static let micSampleRate: Double = 16000
 	static let micBytesPerSecond = 32000
+	/// The mic delivers audio in chunks this long, `micChunkCount` of them in flight.
+	static let micChunkSeconds = 0.08
+	static let micChunkCount = 3
+	/// Opening the mic taking longer than this means Core Audio is stuck: listening fails with an error rather
+	/// than waiting on it.
+	static let micOpenTimeoutSeconds = 5.0
+	/// When the default input changes mid-listen, the mic reopens on the new one after this pause.
+	static let micReopenDelaySeconds = 0.5
 
 	/// Spelling hints for speech-to-text, so "Bol" isn't heard as "bowl" and "Claude" as "cloud".
 	static let speechKeyterms = ["Bol", "Claude", "Claude Code"]
