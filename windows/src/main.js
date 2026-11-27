@@ -43,7 +43,11 @@ let brain = null
 let brainRestarts = 0
 let sayCount = 0
 let listening = null
-const perform = makeControl({ electron: { desktopCapturer, screen, clipboard }, script: join(__dirname, 'control.ps1') })
+const perform = makeControl({
+	electron: { desktopCapturer, screen, clipboard },
+	// PowerShell can't read inside app.asar, so the build unpacks control.ps1 next to it.
+	script: join(__dirname, 'control.ps1').replace('app.asar', 'app.asar.unpacked'),
+})
 
 const toHud = (channel, payload) => hud?.webContents.send(channel, payload)
 

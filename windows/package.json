@@ -22,7 +22,8 @@
 	"build": {
 		"appId": "com.friday.exe",
 		"productName": "Friday",
-		"files": ["src/**/*", "assets/**/*"],
+		"files": ["src/**/*", "assets/**/*", "!src/*.test.js"],
+		"asarUnpack": ["src/control.ps1"],
 		"extraResources": [{ "from": "brain/friday-brain.exe", "to": "brain/friday-brain.exe" }],
 		"win": { "target": "nsis", "icon": "assets/icon.png", "artifactName": "Friday-Setup-${version}.exe" },
 		"nsis": { "oneClick": true, "perMachine": false }
