@@ -5,9 +5,24 @@ import { readFile, unlink } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { z } from 'zod'
-import { SCREEN_MODE } from './constants'
-import { controlTools } from './control'
+import { IS_WINDOWS, SCREEN_MODE } from './constants'
+import { control, controlTools } from './control'
 import { sh } from './utils'
+
+/** Windows: the foreground window's process and title (no URL: browsers don't expose it without UI Automation). */
+async function windowsFrontmostContext(): Promise<{ app: string; title: string }> {
+	const script = `Add-Type @'
+using System; using System.Runtime.InteropServices; using System.Text;
+public static class Fg { [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+[DllImport("user32.dll")] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
+[DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint p); }
+'@
+$h = [Fg]::GetForegroundWindow(); $sb = New-Object Text.StringBuilder 512; [void][Fg]::GetWindowText($h, $sb, 512)
+$p = 0; [void][Fg]::GetWindowThreadProcessId($h, [ref]$p)
+(Get-Process -Id $p).ProcessName; $sb.ToString()`
+	const [app = '', title = ''] = (await sh({ cmd: ['powershell', '-NoProfile', '-Command', script] })).split(/\r?\n/)
+	return { app, title }
+}
 
 /** Frontmost app, window title and (for browsers) the current URL. */
 async function frontmostContext(): Promise<{ app: string; title: string; url: string; bounds: number[] | null }> {
@@ -53,7 +68,7 @@ async function frontmostContext(): Promise<{ app: string; title: string; url: st
 const makeLookAtScreen = ({ onScreen }: { onScreen: (event: { reason: string }) => void }) =>
 	tool(
 		'look_at_screen',
-		'See what the user is looking at on their Mac right now: returns a screenshot plus the frontmost app, window title and browser URL. ' +
+		'See what the user is looking at on their screen right now: returns a screenshot plus the frontmost app, window title and browser URL. ' +
 			"Use it when the request refers to something on screen or needs visual context. Prefer scope 'window' (the frontmost window); use 'screen' for the whole display.",
 		{
 			reason: z.string().describe('A few words on why you need to look, shown to the user'),
@@ -61,6 +76,17 @@ const makeLookAtScreen = ({ onScreen }: { onScreen: (event: { reason: string }) 
 		},
 		async ({ reason, scope }) => {
 			onScreen({ reason })
+			if (IS_WINDOWS) {
+				// The Windows app takes the screenshot (whole display); its result already carries the image.
+				const [ctx, shot] = await Promise.all([
+					windowsFrontmostContext(),
+					control({ action: { name: 'screenshot' } }),
+				])
+				const info =
+					`Frontmost app: ${ctx.app === '' ? 'unknown' : ctx.app}` +
+					(ctx.title === '' ? '' : `\nWindow: ${ctx.title}`)
+				return { ...shot, content: [{ type: 'text' as const, text: info }, ...shot.content] }
+			}
 			const ctx = await frontmostContext()
 			const file = join(tmpdir(), `bol-screen-${Date.now()}.jpg`)
 			const args = ['screencapture', '-x', '-t', 'jpg']

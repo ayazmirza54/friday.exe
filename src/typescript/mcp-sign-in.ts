@@ -38,7 +38,8 @@ export function findUrl(value: unknown): string | null {
 /** Opens a sign-in page in the default browser. Only web pages: never a file or another app's URL scheme. */
 async function openInBrowser({ url }: { url: string }): Promise<boolean> {
 	if (!/^https?:\/\//.test(url)) return false
-	await sh({ cmd: ['open', url] })
+	// rundll32 hands the URL to the default browser without a shell parsing it (`start` would split on &).
+	await sh({ cmd: process.platform === 'win32' ? ['rundll32', 'url.dll,FileProtocolHandler', url] : ['open', url] })
 	return true
 }
 
