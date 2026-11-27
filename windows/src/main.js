@@ -240,7 +240,7 @@ ipcMain.handle('speak-server', async (_e, text) => {
 function createHud() {
 	hud = new BrowserWindow({
 		width: 680,
-		height: 172,
+		height: 200,
 		frame: false,
 		transparent: true,
 		resizable: false,
