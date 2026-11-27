@@ -9,7 +9,7 @@
 	"scripts": {
 		"start": "electron .",
 		"test": "node --test \"src/*.test.js\"",
-		"brain": "cd .. && bun install --frozen-lockfile && bun build src/typescript/index.ts --compile --minify --target=bun-windows-x64 --outfile windows/brain/friday-brain.exe",
+		"brain": "node build-brain.js",
 		"dist": "npm run brain && electron-builder --win nsis"
 	},
 	"dependencies": {
