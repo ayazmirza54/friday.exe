@@ -21,15 +21,22 @@ Windows 10/11 x64. Allow desktop apps to use the microphone (Settings → Privac
 
 ## Use
 
-- **Talk:** Ctrl+J, speak (or type), Enter. Replies are spoken with Windows voices.
+- **Talk:** Ctrl+J, speak (or type), Enter. Esc stops. Replies are spoken.
+- **The Friday window** (tray icon): setup checks with one-click fixes (Claude Code, sign-in, Git for Windows),
+  the assistant's status and log, and settings: shortcut, start with Windows, model, effort, Claude in Chrome,
+  screen control, working folder, Claude Code's path, and Friday's instructions.
+- **Local voice:** speech-to-text can run on your PC instead of Claude's service:
+  - *Local model:* any command that prints a transcript for a WAV file. For NVIDIA Parakeet:
+    `pip install onnx-asr[cpu,hub]`, then the command `onnx-asr nemo-parakeet-tdt-0.6b-v2 "{file}"`.
+  - *Local server:* anything with an OpenAI-style `/audio/transcriptions` endpoint.
+  - Spoken replies: Windows voices, a local OpenAI-style `/audio/speech` server (e.g. Kokoro), or off.
+  - *Voice → Test microphone* records 4 seconds and shows what was heard.
 - **Work:** every Claude Code tool, PowerShell, MCP servers (`~/.friday/mcp.json`), Claude in Chrome, and its
-  own screenshot/click/type tools.
-- **Tasks:** long jobs run in the background; Friday speaks up when they're done.
-- **Tray menu:** new conversation, memory folder, instructions, settings, start with Windows.
-- **Settings:** `~/.friday/config.json` (hotkey, model, effort, Chrome, screen access, working folder, voice),
-  then *Reload settings* in the tray.
+  own screenshot/click/type tools. Long jobs run as background tasks.
+- **Data:** settings, memory, conversations and the log live in `~/.friday`.
 
-Listening uses the same Anthropic endpoint as Claude Code's `/voice` (not a public API). If it breaks, type.
+If Friday can't reach Claude, open the Friday window: Home shows which check fails and the log has Claude Code's
+own error.
 
 ## Develop
 
@@ -43,11 +50,15 @@ npm run dist     # compiles friday-brain.exe and builds dist/Friday-Setup-<versi
 ```
 
 ```
-src/main.js      tray, Ctrl+J, voice bar window, brain process (JSON lines, see ../src/typescript/protocol.ts)
-src/hud.html     the voice bar: mic capture, live transcript, replies, Windows text-to-speech
-src/speech.js    speech-to-text over Claude's voice WebSocket with Claude Code's login
-src/control.js   screenshots, clicks, keys, typing, clipboard, opening apps (control.ps1 does SendInput)
+src/main.js          tray, hotkey, windows, brain process (JSON lines, see ../src/typescript/protocol.ts), log
+src/app.*            the Friday window: setup checks, status, settings
+src/hud.html         the voice bar: level meter, live transcript, replies, spoken answers
+src/config.js        settings (~/.friday/config.json) and their validation
+src/claude.js        finding Claude Code (unwrapping npm's claude.cmd), setup checks
+src/speech.js        speech-to-text over Claude's voice WebSocket with Claude Code's login
+src/local-speech.js  local speech-to-text (command or server) and voice server
+src/control.js       screenshots, clicks, keys, typing, clipboard, opening apps (control.ps1 does SendInput)
 ```
 
-Not ported from the Mac app yet: hold-to-dictate in any app, ducking other apps' audio, the Threads,
-Settings and onboarding windows, OpenAI/Noiz voices, auto-update, multi-monitor screenshots.
+Not ported from the Mac app yet: hold-to-dictate in any app, ducking other apps' audio, the Threads window,
+auto-update, multi-monitor screenshots.

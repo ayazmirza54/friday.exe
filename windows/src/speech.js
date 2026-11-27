@@ -20,9 +20,12 @@ function readToken() {
 	}
 }
 
-// shell: true so a claude.cmd (npm install) runs too; the file is quoted for paths with spaces.
+// `claude` is the unwrapped program (see claude.js), so no shell is needed; an npm cli.js runs on Node.
 const run = (file, args) =>
-	new Promise((resolve) => execFile(`"${file}"`, args, { timeout: 90_000, windowsHide: true, shell: true }, () => resolve()))
+	new Promise((resolve) => {
+		const isJs = /\.[cm]?js$/.test(file)
+		execFile(isJs ? 'node' : file, isJs ? [file, ...args] : args, { timeout: 90_000, windowsHide: true }, () => resolve())
+	})
 
 /** A token valid for two more minutes, asking Claude Code to refresh it when needed. Null when signed out. */
 async function accessToken({ claude }) {
@@ -32,7 +35,7 @@ async function accessToken({ claude }) {
 	await run(claude, ['auth', 'status'])
 	creds = readToken()
 	if (isFresh(creds)) return creds.token
-	await run(claude, ['-p', '"Reply with just: ok"', '--model', 'haiku']) // any real request refreshes the login
+	await run(claude, ['-p', 'Reply with just: ok', '--model', 'haiku']) // any real request refreshes the login
 	creds = readToken()
 	return creds.token != null && creds.expiresAt > Date.now() ? creds.token : null
 }

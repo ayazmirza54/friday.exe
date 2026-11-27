@@ -195,6 +195,10 @@ class Conversation {
 				permissionMode: 'bypassPermissions',
 				allowDangerouslySkipPermissions: true,
 				pathToClaudeCodeExecutable: CLAUDE_BINARY,
+				// A JS entry point (an npm install's cli.js) runs on Node: a compiled brain has no `bun` on PATH.
+				...(/\.[cm]?js$/.test(CLAUDE_BINARY) ? { executable: 'node' as const } : {}),
+				// Claude Code's own errors (not signed in, no Git Bash on Windows…) reach the log instead of vanishing.
+				stderr: (data: string) => log({ msg: `claude: ${data.trim().slice(0, 1000)}` }),
 				systemPrompt: { type: 'preset', preset: 'claude_code', append },
 				resume,
 				// The user's Claude Code skills, by name or when a request fits one.

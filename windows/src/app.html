@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self'; media-src blob:">
+<title>Friday</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="titlebar"></div>
+<nav aria-label="Friday">
+	<div class="brand"><img src="../assets/icon.png" alt="">Friday</div>
+	<a href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+	<a href="#general"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>General</a>
+	<a href="#assistant"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/></svg>Assistant</a>
+	<a href="#voice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voice</a>
+	<a href="#about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>About</a>
+	<div class="spacer"></div>
+	<div class="nav-status"><span class="dot" id="navDot"></span><span id="navStatus">Starting…</span></div>
+</nav>
+
+<main>
+	<!-- Home -->
+	<section id="home">
+		<div class="card hero">
+			<img src="../assets/icon.png" alt="">
+			<div>
+				<h1 id="heroTitle">Getting Friday ready…</h1>
+				<div class="sub m0" id="heroSub">Checking your setup.</div>
+			</div>
+			<div class="actions">
+				<button class="primary" id="talk">Talk now</button>
+				<button id="newConversation">New conversation</button>
+			</div>
+		</div>
+
+		<h2>Setup</h2>
+		<div class="card" id="checks"></div>
+		<div class="inline mt"><button id="recheck">Check again</button><span class="result" id="checkedAt"></span></div>
+
+		<h2>Assistant</h2>
+		<div class="card">
+			<div class="row">
+				<span class="dot" id="brainDot"></span>
+				<div class="text"><div class="title" id="brainState">Starting</div><div class="detail" id="brainDetail"></div></div>
+				<button id="restart">Restart</button>
+				<button id="openLog">Open log</button>
+			</div>
+		</div>
+		<div class="notice err" id="problem" hidden></div>
+
+		<h2>Last reply</h2>
+		<div class="card"><div class="row"><div class="text reply" id="lastReply"><span class="detail">Nothing yet. Press <kbd id="heroKey">Ctrl+J</kbd> and say what you need.</span></div></div></div>
+	</section>
+
+	<!-- General -->
+	<section id="general">
+		<h1>General</h1>
+		<p class="sub">How you call Friday, and where it keeps things.</p>
+		<div class="card">
+			<div class="row">
+				<div class="text"><div class="title">Talk shortcut</div><div class="detail">Opens the voice bar from any app. Press it again, or Enter, to send.</div></div>
+				<button class="shortcut" id="shortcut" aria-label="Change the talk shortcut"></button>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Start with Windows</div><div class="detail">Friday waits in the tray, ready when you are.</div></div>
+				<label class="switch"><input type="checkbox" id="openAtLogin" aria-label="Start with Windows"><span></span></label>
+			</div>
+		</div>
+		<div class="notice err" id="shortcutError" hidden></div>
+		<h2>Your data</h2>
+		<div class="card">
+			<div class="row">
+				<div class="text"><div class="title">Memory</div><div class="detail">What Friday has learned about you and how you like things done.</div></div>
+				<button data-open="memory">Open</button>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Friday folder</div><div class="detail" id="homePath"></div></div>
+				<button data-open="home">Open</button>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Log</div><div class="detail">What happened, for troubleshooting.</div></div>
+				<button data-open="logs">Open</button>
+			</div>
+		</div>
+	</section>
+
+	<!-- Assistant -->
+	<section id="assistant">
+		<h1>Assistant</h1>
+		<p class="sub">Claude Code does the work, on your Claude subscription.</p>
+		<div class="card">
+			<div class="row">
+				<div class="text"><div class="title">Model</div><div class="detail">Opus for most work; Fable for the hardest jobs.</div></div>
+				<div class="segmented" id="model"></div>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Effort</div><div class="detail">More effort thinks longer before acting.</div></div>
+				<select id="effort" aria-label="Effort"></select>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Claude in Chrome</div><div class="detail">Use your real Chrome, with your logins, for anything on the web.</div></div>
+				<label class="switch"><input type="checkbox" id="chrome" aria-label="Claude in Chrome"><span></span></label>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">See and use the screen</div><div class="detail">Screenshots, clicks and typing when an app can't be scripted.</div></div>
+				<label class="switch"><input type="checkbox" id="screen" aria-label="See and use the screen"><span></span></label>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Working folder</div><div class="detail mono" id="workingDirectory"></div></div>
+				<button id="pickFolder">Choose…</button>
+				<button class="link" id="resetFolder">Default</button>
+			</div>
+			<div class="row">
+				<div class="text"><div class="title">Claude Code</div><div class="detail mono" id="claudePath"></div></div>
+				<button id="pickClaude">Choose…</button>
+				<button class="link" id="autoClaude">Find automatically</button>
+			</div>
+		</div>
+		<h2>Instructions</h2>
+		<div class="card">
+			<div class="row stack">
+				<div class="detail">How Friday behaves. Changes apply to the next conversation.</div>
+				<textarea id="instructions" class="mono" aria-label="Instructions" spellcheck="false"></textarea>
+				<div class="inline"><button class="primary" id="saveInstructions">Save</button><button id="restoreInstructions">Restore default</button><span class="result" id="instructionsState"></span></div>
+			</div>
+		</div>
+		<p class="notice">Friday runs Claude Code with permission checks off: it acts on your PC without asking first. Deleted files go to the Recycle Bin.</p>
+	</section>
+
+	<!-- Voice -->
+	<section id="voice">
+		<h1>Voice</h1>
+		<p class="sub">How Friday hears you and how it answers. Local models keep your voice on this PC.</p>
+
+		<h2>Speech to text</h2>
+		<div class="choices">
+			<label class="choice"><input type="radio" name="speechToText" value="claude">
+				<div class="text"><div class="title">Claude</div><div class="detail">Live words as you speak, any language. Included with your subscription.</div></div>
+			</label>
+			<label class="choice"><input type="radio" name="speechToText" value="command">
+				<div class="text grow">
+					<div class="title">Local model</div>
+					<div class="detail">Parakeet, Whisper or any model you run on this PC. Friday records, saves a 16 kHz WAV and runs your command; the transcript is the last line it prints.</div>
+					<div class="choice-body">
+						<input type="text" class="mono" id="sttCommand" aria-label="Transcription command" spellcheck="false">
+						<div class="detail">Use <span class="mono">{file}</span> for the recording. For Parakeet: <span class="mono">pip install onnx-asr[cpu,hub]</span>, then <span class="mono">onnx-asr nemo-parakeet-tdt-0.6b-v2 "{file}"</span>. <button class="link" data-open="parakeet">About onnx-asr</button></div>
+					</div>
+				</div>
+			</label>
+			<label class="choice"><input type="radio" name="speechToText" value="server">
+				<div class="text grow">
+					<div class="title">Local server</div>
+					<div class="detail">A speech server with an OpenAI-style <span class="mono">/audio/transcriptions</span> endpoint, such as one serving Parakeet.</div>
+					<div class="choice-body field">
+						<label for="sttServerUrl">Server URL</label><input type="url" class="mono" id="sttServerUrl" spellcheck="false">
+						<label for="sttServerModel">Model</label><input type="text" class="mono" id="sttServerModel" spellcheck="false">
+						<label for="sttServerKey">API key</label><input type="password" id="sttServerKey" placeholder="Optional">
+					</div>
+				</div>
+			</label>
+		</div>
+		<div class="card mt">
+			<div class="row">
+				<div class="text"><div class="title">Test</div><div class="result" id="sttResult">Records 4 seconds and shows what Friday heard.</div><div class="meter mt"><div id="sttMeter"></div></div></div>
+				<button id="testStt">Test microphone</button>
+				<button class="link" data-open="mic-privacy">Microphone privacy</button>
+			</div>
+		</div>
+
+		<h2>Spoken replies</h2>
+		<div class="choices">
+			<label class="choice"><input type="radio" name="textToSpeech" value="windows">
+				<div class="text grow">
+					<div class="title">Windows voice</div>
+					<div class="detail">Built in. Natural voices can be added in Windows Settings → Time &amp; language → Speech.</div>
+					<div class="choice-body field">
+						<label for="voiceName">Voice</label><select id="voiceName"></select>
+						<label for="voiceRate">Speed</label><div class="inline"><input type="range" id="voiceRate" min="0.7" max="1.6" step="0.05" aria-label="Speed"><span class="result" id="voiceRateLabel"></span></div>
+					</div>
+				</div>
+			</label>
+			<label class="choice"><input type="radio" name="textToSpeech" value="server">
+				<div class="text grow">
+					<div class="title">Local voice server</div>
+					<div class="detail">A voice model with an OpenAI-style <span class="mono">/audio/speech</span> endpoint, such as Kokoro.</div>
+					<div class="choice-body field">
+						<label for="ttsServerUrl">Server URL</label><input type="url" class="mono" id="ttsServerUrl" spellcheck="false">
+						<label for="ttsServerModel">Model</label><input type="text" class="mono" id="ttsServerModel" spellcheck="false">
+						<label for="ttsServerVoice">Voice</label><input type="text" class="mono" id="ttsServerVoice" spellcheck="false">
+						<label for="ttsServerKey">API key</label><input type="password" id="ttsServerKey" placeholder="Optional">
+					</div>
+				</div>
+			</label>
+			<label class="choice"><input type="radio" name="textToSpeech" value="off">
+				<div class="text"><div class="title">Off</div><div class="detail">Replies show in the voice bar without being read aloud.</div></div>
+			</label>
+		</div>
+		<div class="card mt">
+			<div class="row">
+				<div class="text"><div class="title">Test</div><div class="result" id="ttsResult">Plays a short sample.</div></div>
+				<button id="testTts">Play sample</button>
+			</div>
+		</div>
+	</section>
+
+	<!-- About -->
+	<section id="about">
+		<div class="card hero">
+			<img src="../assets/icon.png" alt="">
+			<div><h1>Friday</h1><div class="sub m0">Talk to your PC. Claude does the work. · Version <span id="version"></span></div></div>
+		</div>
+		<div class="card">
+			<div class="row"><div class="text"><div class="title">Built on Bol</div><div class="detail">Friday brings Bol's assistant to Windows. MIT licensed.</div></div></div>
+			<div class="row"><div class="text"><div class="title">Not affiliated with Anthropic</div><div class="detail">Claude is a trademark of Anthropic. Live listening uses the endpoint behind Claude Code's /voice, which isn't a public API; if it stops working, switch to a local model.</div></div></div>
+		</div>
+	</section>
+</main>
+<div id="toast" role="status"></div>
+<script src="mic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
