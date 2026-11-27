@@ -24,12 +24,12 @@ export function resolveControl({ id, ...result }: { id: string } & ControlResult
 }
 
 /** Has the app perform one action and returns its result as tool content (text plus any screenshots). */
-async function control({ action }: { action: Record<string, unknown> }) {
+export async function control({ action }: { action: Record<string, unknown> }) {
 	const id = `c${++controlSeq}`
 	const result = await new Promise<ControlResult>((resolve) => {
 		const timer = setTimeout(() => {
 			pendingControls.delete(id)
-			resolve({ text: 'The Mac did not respond in time.', isError: true, images: [] })
+			resolve({ text: 'The computer did not respond in time.', isError: true, images: [] })
 		}, CONTROL_TIMEOUT_MS)
 		pendingControls.set(id, (r) => {
 			clearTimeout(timer)

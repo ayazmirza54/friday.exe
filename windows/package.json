@@ -1,0 +1,30 @@
+{
+	"name": "friday",
+	"productName": "Friday",
+	"version": "0.1.0",
+	"description": "Talk to your PC. Claude does the work.",
+	"main": "src/main.js",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"start": "electron .",
+		"test": "node --test \"src/*.test.js\"",
+		"brain": "cd .. && bun install --frozen-lockfile && bun build src/typescript/index.ts --compile --minify --target=bun-windows-x64 --outfile windows/brain/friday-brain.exe",
+		"dist": "npm run brain && electron-builder --win nsis"
+	},
+	"dependencies": {
+		"ws": "8.23.0"
+	},
+	"devDependencies": {
+		"electron": "45.4.1",
+		"electron-builder": "26.18.1"
+	},
+	"build": {
+		"appId": "com.friday.exe",
+		"productName": "Friday",
+		"files": ["src/**/*", "assets/**/*"],
+		"extraResources": [{ "from": "brain/friday-brain.exe", "to": "brain/friday-brain.exe" }],
+		"win": { "target": "nsis", "icon": "assets/icon.png", "artifactName": "Friday-Setup-${version}.exe" },
+		"nsis": { "oneClick": true, "perMachine": false }
+	}
+}

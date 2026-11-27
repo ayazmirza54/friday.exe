@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Friday</title>
+<style>
+	:root { --bg: rgba(18, 18, 22, 0.94); --fg: #f2f2f5; --dim: #9a9aa6; --accent: #7aa2ff; --err: #ff7a7a; }
+	html, body { margin: 0; height: 100%; background: transparent; font: 15px 'Segoe UI Variable', 'Segoe UI', sans-serif; color: var(--fg); overflow: hidden; }
+	.bar { position: absolute; inset: 8px; background: var(--bg); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+		box-shadow: 0 8px 32px rgba(0,0,0,0.45); padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; -webkit-app-region: drag; }
+	.row { display: flex; align-items: center; gap: 12px; }
+	.dot { width: 12px; height: 12px; border-radius: 50%; background: var(--dim); flex: none; }
+	.listening .dot { background: var(--err); animation: pulse 1.2s infinite; }
+	.working .dot { background: var(--accent); animation: pulse 0.8s infinite; }
+	@keyframes pulse { 50% { opacity: 0.35; } }
+	input { flex: 1; background: transparent; border: none; outline: none; color: var(--fg); font: inherit; font-size: 17px; -webkit-app-region: no-drag; }
+	input::placeholder { color: var(--dim); }
+	.status { color: var(--dim); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.reply { font-size: 15px; line-height: 1.4; max-height: 64px; overflow-y: auto; -webkit-app-region: no-drag; }
+	.reply.error { color: var(--err); }
+	.hint { color: var(--dim); font-size: 11px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar">
+	<div class="row"><div class="dot"></div><input id="input" placeholder="Listening… or type" aria-label="Request" autocomplete="off"></div>
+	<div class="status" id="status" aria-live="polite"></div>
+	<div class="reply" id="reply" aria-live="polite"></div>
+	<div class="hint" id="hint">Enter to send · Esc to stop</div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id)
+const input = $('input'), status = $('status'), reply = $('reply'), bar = $('bar')
+let state = 'idle' // idle | listening | working
+let isEdited = false
+let mic = null
+let voiceName = null
+let hideTimer = null
+
+function setState(next) {
+	state = next
+	bar.className = 'bar ' + next
+}
+
+async function openMic() {
+	const stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
+	const ctx = new AudioContext({ sampleRate: 16000 })
+	const source = ctx.createMediaStreamSource(stream)
+	// shortcut: ScriptProcessor is deprecated but needs no worklet file; move to an AudioWorklet if Chromium drops it.
+	const node = ctx.createScriptProcessor(4096, 1, 1)
+	node.onaudioprocess = (e) => {
+		const f = e.inputBuffer.getChannelData(0)
+		const pcm = new Int16Array(f.length)
+		for (let i = 0; i < f.length; i++) pcm[i] = Math.max(-1, Math.min(1, f[i])) * 0x7fff
+		window.friday.pcm(pcm.buffer)
+	}
+	source.connect(node)
+	node.connect(ctx.destination)
+	mic = { close: () => { node.disconnect(); source.disconnect(); stream.getTracks().forEach((t) => t.stop()); ctx.close() } }
+}
+
+function closeMic() {
+	mic?.close()
+	mic = null
+}
+
+async function listen() {
+	clearTimeout(hideTimer)
+	speechSynthesis.cancel()
+	input.value = ''
+	isEdited = false
+	reply.textContent = ''
+	reply.className = 'reply'
+	status.textContent = ''
+	input.focus()
+	setState('listening')
+	const { error } = await window.friday.listen()
+	if (error != null) {
+		status.textContent = error
+		return
+	}
+	try {
+		await openMic()
+	} catch (e) {
+		window.friday.cancel()
+		status.textContent = 'No microphone: allow desktop apps to use it in Settings → Privacy → Microphone, or type.'
+	}
+}
+
+async function send() {
+	if (state !== 'listening') return
+	closeMic()
+	const heard = await window.friday.finish()
+	const text = (isEdited ? input.value : heard || input.value).trim()
+	if (text === '') {
+		cancel()
+		return
+	}
+	input.value = text
+	setState('working')
+	status.textContent = 'Working…'
+	window.friday.say(text)
+}
+
+function cancel() {
+	closeMic()
+	window.friday.cancel()
+	speechSynthesis.cancel()
+	setState('idle')
+	window.friday.hide()
+}
+
+function speak(text) {
+	speechSynthesis.cancel()
+	const u = new SpeechSynthesisUtterance(text)
+	const voice = speechSynthesis.getVoices().find((v) => v.name === voiceName)
+	if (voice != null) u.voice = voice
+	u.onend = () => state === 'idle' && scheduleHide()
+	speechSynthesis.speak(u)
+}
+
+function scheduleHide() {
+	clearTimeout(hideTimer)
+	hideTimer = setTimeout(() => state === 'idle' && !speechSynthesis.speaking && window.friday.hide(), 6000)
+}
+
+input.addEventListener('input', () => (isEdited = true))
+input.addEventListener('keydown', (e) => {
+	clearTimeout(hideTimer) // the user is here: stay open
+	if (e.key === 'Enter') {
+		e.preventDefault()
+		if (state === 'listening') send()
+		else if (input.value.trim() !== '' && isEdited) { setState('listening'); send() } // typed a follow-up
+		else listen()
+	} else if (e.key === 'Escape') {
+		e.preventDefault()
+		if (speechSynthesis.speaking) speechSynthesis.cancel()
+		else if (state === 'working') { window.friday.interrupt(); status.textContent = 'Stopped.' ; setState('idle') }
+		else cancel()
+	}
+})
+
+window.friday.on('open', listen)
+window.friday.on('hotkey', () => (state === 'listening' ? send() : listen()))
+window.friday.on('config', (c) => (voiceName = c.voice))
+window.friday.on('transcript', (text) => {
+	if (!isEdited) input.value = text
+})
+window.friday.on('problem', (message) => (status.textContent = message + ' You can type instead.'))
+window.friday.on('brain', (event) => {
+	switch (event.type) {
+		case 'tool':
+			status.textContent = event.summary ? `${event.name}: ${event.summary}` : event.name
+			break
+		case 'screen':
+			status.textContent = `Looking at your screen: ${event.reason}`
+			break
+		case 'task':
+			status.textContent = `Task "${event.name}" ${event.status}`
+			break
+		case 'result':
+			if (event.isInterrupted) break
+			reply.textContent = event.text
+			reply.className = event.isError ? 'reply error' : 'reply'
+			if (event.job == null && !event.isDelegated) status.textContent = ''
+			speak(event.text)
+			if (event.job != null) scheduleHide()
+			break
+		case 'idle':
+			if (state === 'working') setState('idle')
+			if (!speechSynthesis.speaking) scheduleHide()
+			break
+	}
+})
+</script>
+</body>
+</html>

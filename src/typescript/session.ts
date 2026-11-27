@@ -396,8 +396,11 @@ class Conversation {
 					case 'prompt_suggestion':
 					case 'conversation_reset':
 						break
-					default:
-						exhaustiveGuard(m)
+					default: {
+						// Compile-time check only: a newer Claude Code sends types this SDK doesn't know (e.g. active_goal).
+						const unknown: never = m
+						log({ msg: `ignored message type ${(unknown as { type?: string }).type}` })
+					}
 				}
 			}
 		} catch (e: any) {
